@@ -1,0 +1,218 @@
+===============================================
+1. PROBLEMS IN OBJECT ORIENTED PROGRAMMING
+================================================
+
+
+OBJECT A                ObJECT B                    OBJECT C
+{                       {                           {
+
+getMessage()            getMessage()                getMessage()
+
+}                       }                           }
+
+
+Problem 1: Code repetion in every object. This is not good design of programming each object has repeating method
+---------
+
+Solution 1: So to solve this type problem we write the separate entity for logger and called in each objects where we want to
+            add read log message as below.
+
+
+OBJECT A                ObJECT B                    OBJECT C                    LOGGER
+{                       {                           {                           {
+
+getMessage()            getMessage()                getMessage()                getMessage()
+
+}                       }                           }                           }
+
+
+3 PROBLEMS IN ABOVE APPROACH:
+-----------------------------
+
+-> To many relationships with the crosscutting objects.
+-> Code is still required in the all methods.
+-> All code cannot be changed at once.
+
+CROSS CUTTING CONCERNS: Means non business idea or non business logic its not part of our main problem it is related to below.
+                        Security
+                        Logging
+                        Transaction
+
+===========================================================================================================
+To solve the above problems in the Object Oriented Programming we can using Aspect Oriented Programming(AOP)
+===========================================================================================================
+
+AOP -> Aspect Oriented Programming
+OOP -> Object Oriented Programming
+
+
+Aspect - > specific classes which some special methods for particular tasks like logging, security and transactions etc.
+
+Key unit in OOP  -> Class
+Key unit in AOP  -> Aspect
+
+
+                            OBJECT A                ObJECT B                    OBJECT C
+                            {                       {                           {
+                            getMessage()            getMessage()                getMessage()
+
+                            }                       }                           }
+
+
+
+                                 LOGGER ASPECT              TRANSACTION ASPECT
+                                 {                          {
+                                 ....                        ....
+                                 }                          }
+
+
+Aspect Configuration file:
+------------------------------
+Its responsible for configuration for all Aspects with the all object where we want to use. Its configure suppose Logging Aspect for a method in Object A Before or
+After execution of that method
+
+Aspect Configuration solve our three problems of Object Oriented Programming:
+
+1. To many relationships with the crosscutting objects- Only single configuration required for every object where we want to use the crosscutting object like Logging Aspect
+                                                        with using Aspect Configuration file.
+
+2. Code is still required in the all methods- No need to code required in all method just put that method on the Aspect Configuration file then code automatically associated
+                                              with that method and execute Before or After execution of Target Method.
+
+3. All code cannot be changed at once- We can all be changed at once by using Aspect Configuration file.
+
+============================================
+AOP TERMINOLOGIES
+============================================
+
+AOP concepts and terminologies are as follows:
+
+Join point
+Advice
+Pointcut
+Introduction
+Target Object
+Aspect
+Interceptor
+AOP Proxy
+Weaving
+
+1. Join point -> Any point in our program. Spring supports only method execution join point.
+--------------
+
+    Example :    class A {
+
+                  private String fName;
+                  private int ID;
+
+                  multiply() {.......} -------------------> 1st join point
+                  divide() {..........} -------------------> 2nd join point
+
+                 }
+
+2. Advice ->  Advice represents an action taken by an aspect at a particular join point.
+------------
+Action will be peroformed by Aspect atb particular advice.
+
+3. Aspect -> Its the action that need to be performed
+-----------
+
+4. Pointcut: A predicate that matches join points.
+-------------
+
+
+================================================================
+ANNOTATIONS:
+================================================================
+ASPECT = POINTCUT + ADVICE
+         (Where)  + (What)
+
+1.@EnableAspectJAutoProxy(proxyTargetClass = true)
+---------------------------------------------------
+    -> To enable aspectJ in our application
+
+    ->  @Configuration
+        @ComponentScan(basePackages = {"aspects", "services"})
+        @EnableAspectJAutoProxy(proxyTargetClass = true)
+        public class AppConfig {
+        }
+
+
+2. @ASPECT, @BEFORE
+--------------------
+
+
+        @Component
+        @Aspect
+        public class LoggingAspect {
+
+            @Before("execution(void findCustomer())")
+            public void message() {
+                System.out.println("==========Logging message============");
+            }
+        }
+
+
+ASPECT = POINTCUT + ADVICE
+         (Where)  + (What)
+
+       = Advice     ->           public void message() {
+                                     System.out.println("==========Logging message============");
+                                 }
+
+       = Pointcut   ->          @Before("execution(void findCustomer())")
+
+
+
+===================
+POINT CUTS :
+====================
+
+Wild cards :  execution(     {return_type}        {method_name}(method_paramters)     )
+
+
+1.  execution(* hello())   -> Execution of method hello(), No parameters, any return type
+
+2.  execution(* hello(int , int))    -> Execution of method hello(), 2 int as  parameters, any return type
+
+3. execution(* hello(*))   ->   Execution of method hello, with any 1 paramter, any return type
+
+4. execution(* hello(..))   ->   Execution of method hello, any paramters, any return type
+
+******************************************* PACKAGE LEVEL ***************************************************
+
+5. execution(int com.gagan.repository.Repositoryimpl.hello(int))    -> Execution of method hello
+                                                                    -> in class Repositoryimpl
+                                                                    -> in package com.gagan.repository
+                                                                    -> 1 int as paramter
+                                                                    -> int as return type
+
+6. execution(* com.gagan.repository..*Repositoryimpl.*(..))         -> Execution of any method
+                                                                    -> class name ends with *Repositoryimpl
+                                                                    -> in package com.gagan.repository or subpackage
+                                                                    -> any paramter
+                                                                    -> any return type
+
+
+7. execution(* *.*(..))     ->  Execution of any method
+                            -> Any paramters
+                            -> Any class
+                            -> In default package  ------------IMPORTANT
+                            -> Any return type
+
+8. execution(* *..*.*(..))  -> Execution of any method
+                            -> Any paramaters
+                            -> Any class
+                            -> In any package or sub package
+                            -> Any return type
+
+****************************************** ANNOATATION LEVEL **********************************************************
+
+9. ("execution(* (@org.springframework.stereotype.Repository *).*(..))")
+            -> Execution of any method
+            -> Any paramaters
+            -> Any class anotatted with @org.springframework.stereotype.Repository
+                - (@org.springframework.stereotype.Repository *)
+                - Annotated with : @org.springframework.stereotype.Repository
+                - Any class : *
+            -> Any return type
